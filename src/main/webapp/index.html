@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>thrift test</title>
+    <script type="text/javascript" src="resources/script/thrift.js"></script>
+    <script type="text/javascript" src="resources/script/service_types.js"></script>
+    <script type="text/javascript" src="resources/script/HelloService.js"></script>
+    <script type="text/javascript" src="resources/script/jquery-2.1.4.min.js"></script>
+    <style type="text/css">
+        * {
+            font-size: 20px;
+            line-height: 150%;
+            padding: 3px 10px;
+            margin: 3px 10px;
+        }
+    </style>
+</head>
+<body>
+<div style="text-align: center">
+    <button id="btnCallThrift" value="Call Thrift">Call Thrift</button>
+    <textarea id="txtResult" style="width: 90%" rows="10">
+
+    </textarea>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnCallThrift").click(function () {
+            try {
+                var transport = new Thrift.Transport("hello.service");
+                var protocol = new Thrift.Protocol(transport);
+                var client = new HelloServiceClient(protocol);
+                var callResult = client.hello("jimmy"); //json格式
+                $("#txtResult").val(callResult);
+            } catch (e) {
+                $("#txtResult").val("出错啦：" + e.message);
+            }
+        });
+    })
+</script>
+</body>
+</html>

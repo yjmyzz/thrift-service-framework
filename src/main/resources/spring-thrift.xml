@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+			http://www.springframework.org/schema/util
+			http://www.springframework.org/schema/util/spring-util-3.1.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+       default-lazy-init="true" default-autowire="byName">
+
+
+    <context:component-scan base-package="com.cnblogs.yjmyzz.thrift"/>
+
+    <bean class="org.springframework.web.servlet.handler.SimpleServletHandlerAdapter"/>
+
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+
+
+    <bean name="/health.service" class="com.cnblogs.yjmyzz.thrift.proxy.ThriftServletProxy">
+        <constructor-arg index="0" value="com.cnblogs.yjmyzz.thrift.service.HealthService"/>
+        <constructor-arg index="1">
+            <ref bean="healthServiceImpl"/>
+        </constructor-arg>
+    </bean>
+
+    <bean name="/hello.service" class="com.cnblogs.yjmyzz.thrift.proxy.ThriftServletProxy">
+        <constructor-arg index="0" value="com.cnblogs.yjmyzz.thrift.service.HelloService"/>
+        <constructor-arg index="1">
+            <ref bean="helloServiceImpl"/>
+        </constructor-arg>
+    </bean>
+
+    <util:list id="thriftServerList">
+        <ref bean="helloProxy"/>
+        <ref bean="healthProxy"/>
+    </util:list>
+
+    <bean id="helloProxy" class="com.cnblogs.yjmyzz.thrift.proxy.ThriftServerProxy">
+        <property name="port" value="33201"/>
+        <property name="serviceInterface" value="com.cnblogs.yjmyzz.thrift.service.HelloService"/>
+        <property name="serviceImplObject" ref="helloServiceImpl"/>
+    </bean>
+
+
+    <bean id="healthProxy" class="com.cnblogs.yjmyzz.thrift.proxy.ThriftServerProxy">
+        <property name="port" value="33202"/>
+        <property name="serviceInterface" value="com.cnblogs.yjmyzz.thrift.service.HealthService"/>
+        <property name="serviceImplObject" ref="healthServiceImpl"/>
+    </bean>
+
+
+</beans>
