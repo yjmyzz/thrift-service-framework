@@ -21,7 +21,7 @@
 mvn package 生成war包,可部署到任何兼容servlet 2.5+的web容器,http端口及rpc端口均可在配置文件中修改  
 
 ###测试运行
-本项目内嵌了tomcat及jetty maven插件,直接mvn clean package tomcat7:run 或mvn clean package jetty:run 即可启用  
+本项目内嵌了tomcat及jetty maven插件,直接mvn clean package tomcat7:run 或mvn clean package jetty:run 即可启动  
 
 1、 js调用直接浏览http://localhost:8080/thrift-service-framework/ ,点击页面的call thrift按钮,即可测试js方式直接调用  
 
