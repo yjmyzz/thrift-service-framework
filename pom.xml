@@ -4,11 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cnblogs.yjmyzz</groupId>
     <artifactId>thrift-service-framework</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <version>1.0</version>
     <properties>
         <thrift.version>0.9.3</thrift.version>
         <java.version>1.8</java.version>
+        <jetty.version>9.3.6.v20151106</jetty.version>
+        <jetty.jsp.version>9.2.9.v20150224</jetty.jsp.version>
         <spring.version>4.2.3.RELEASE</spring.version>
         <log4j.version>2.4.1</log4j.version>
         <slf4j.version>1.7.13</slf4j.version>
@@ -22,10 +24,47 @@
             <version>${thrift.version}</version>
         </dependency>
 
+        <!--commpress-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <!-- JETTY DEPENDENCIES -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <!--test-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Spring -->
@@ -126,14 +165,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--tomcat embed-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat.embed</groupId>-->
-            <!--<artifactId>tomcat-embed-core</artifactId>-->
-            <!--<version>8.0.29</version>-->
-        <!--</dependency>-->
-
-
     </dependencies>
 
     <build>
@@ -164,6 +195,30 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/webapp</directory>
+                                    <targetPath></targetPath>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- package时，自动将源代码打包 -->
@@ -201,7 +256,7 @@
                     <stopKey>exit</stopKey>
                     <stopPort>9090</stopPort>
                     <webAppConfig>
-                        <contextPath>/${project.artifactId}</contextPath>
+                        <contextPath>/</contextPath>
                     </webAppConfig>
                 </configuration>
             </plugin>
@@ -212,37 +267,55 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <path>/${project.artifactId}</path>
+                    <path>/</path>
                     <port>8080</port>
                     <uriEncoding>UTF-8</uriEncoding>
                 </configuration>
             </plugin>
 
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.thrift.tools</groupId>-->
-            <!--<artifactId>maven-thrift-plugin</artifactId>-->
-            <!--<version>0.1.11</version>-->
-            <!--<configuration>-->
-            <!--<thriftExecutable>/usr/local/bin/thrift</thriftExecutable>-->
-            <!--</configuration>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>thrift-sources</id>-->
-            <!--<phase>generate-sources</phase>-->
-            <!--<goals>-->
-            <!--<goal>compile</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--<execution>-->
-            <!--<id>thrift-test-sources</id>-->
-            <!--<phase>generate-test-sources</phase>-->
-            <!--<goals>-->
-            <!--<goal>testCompile</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/*.DSA</exclude>
+                                        <exclude>**/*.RSA</exclude>
+                                        <exclude>**/*.SF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.cnblogs.yjmyzz.thrift.main.ThriftServer</mainClass>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
     </build>
 

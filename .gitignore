@@ -5,3 +5,5 @@ target
 .project
 .settings
 logs
+dependency-reduced-pom.xml
+.DS_Store

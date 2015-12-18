@@ -29,10 +29,9 @@ public class ThriftServerStartListener implements ServletContextListener {
             if (list != null && list.size() > 0) {
                 list.forEach(ThriftServerProxy::start);
             }
-
-            logger.info("Thrift Server监听接口启动。。。。。。。。。。。");
+            logger.info("Thrift Server监听器启动成功!");
         } catch (Exception e) {
-            logger.error("Thrift Server监听接口启动错误", e);
+            logger.error("Thrift Server监听器启动错误", e);
             e.printStackTrace();
         }
     }

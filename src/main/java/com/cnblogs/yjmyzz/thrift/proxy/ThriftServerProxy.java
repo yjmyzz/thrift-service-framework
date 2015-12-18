@@ -79,7 +79,7 @@ public class ThriftServerProxy {
                     tArgs.transportFactory(new TFramedTransport.Factory());
                     TServer server = new TNonblockingServer(tArgs);
 
-                    logger.info(serviceInterface + "服务已启动,端口:" + getPort() + " ...");
+                    logger.info(serviceInterface + "服务启动成功,端口:" + getPort());
                     server.serve();
 
                 } catch (TTransportException e) {

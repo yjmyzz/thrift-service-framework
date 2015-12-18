@@ -113,6 +113,114 @@ HelloService_hello_result.prototype.write = function(output) {
   return;
 };
 
+HelloService_test_args = function(args) {
+  this.param = null;
+  if (args) {
+    if (args.param !== undefined && args.param !== null) {
+      this.param = new DemoParam(args.param);
+    }
+  }
+};
+HelloService_test_args.prototype = {};
+HelloService_test_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.param = new DemoParam();
+        this.param.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HelloService_test_args.prototype.write = function(output) {
+  output.writeStructBegin('HelloService_test_args');
+  if (this.param !== null && this.param !== undefined) {
+    output.writeFieldBegin('param', Thrift.Type.STRUCT, 1);
+    this.param.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+HelloService_test_result = function(args) {
+  this.success = null;
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = new DemoResult(args.success);
+    }
+  }
+};
+HelloService_test_result.prototype = {};
+HelloService_test_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.success = new DemoResult();
+        this.success.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+HelloService_test_result.prototype.write = function(output) {
+  output.writeStructBegin('HelloService_test_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRUCT, 0);
+    this.success.write(output);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 HelloServiceClient = function(input, output) {
     this.input = input;
     this.output = (!output) ? input : output;
@@ -167,4 +275,53 @@ HelloServiceClient.prototype.recv_hello = function() {
     return result.success;
   }
   throw 'hello failed: unknown result';
+};
+HelloServiceClient.prototype.test = function(param, callback) {
+  this.send_test(param, callback); 
+  if (!callback) {
+    return this.recv_test();
+  }
+};
+
+HelloServiceClient.prototype.send_test = function(param, callback) {
+  this.output.writeMessageBegin('test', Thrift.MessageType.CALL, this.seqid);
+  var args = new HelloService_test_args();
+  args.param = param;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  if (callback) {
+    var self = this;
+    this.output.getTransport().flush(true, function() {
+      var result = null;
+      try {
+        result = self.recv_test();
+      } catch (e) {
+        result = e;
+      }
+      callback(result);
+    });
+  } else {
+    return this.output.getTransport().flush();
+  }
+};
+
+HelloServiceClient.prototype.recv_test = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new HelloService_test_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'test failed: unknown result';
 };

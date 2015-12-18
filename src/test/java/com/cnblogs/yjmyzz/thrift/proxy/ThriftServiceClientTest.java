@@ -1,5 +1,7 @@
 package com.cnblogs.yjmyzz.thrift.proxy;
 
+import com.cnblogs.yjmyzz.thrift.service.DemoEnum;
+import com.cnblogs.yjmyzz.thrift.service.DemoParam;
 import com.cnblogs.yjmyzz.thrift.service.HealthService;
 import com.cnblogs.yjmyzz.thrift.service.HelloService;
 import org.apache.http.impl.client.HttpClients;
@@ -11,7 +13,7 @@ import org.apache.thrift.transport.*;
 public class ThriftServiceClientTest {
 
     static String serviceHost = "127.0.0.1";
-    static String baseUrl = "http://" + serviceHost + ":8080/ThriftServer/";
+    static String baseUrl = "http://" + serviceHost + ":8080/";
 
     /**
      * @param args
@@ -70,6 +72,7 @@ public class ThriftServiceClientTest {
         try {
             HelloService.Client client = new HelloService.Client(getProtocol4Rpc(33201));
             System.out.println(client.hello("jimmy.yang"));
+            System.out.println(client.test(getDemoParam()));
             client.getInputProtocol().getTransport().close();
             client.getOutputProtocol().getTransport().close();
         } catch (TTransportException e) {
@@ -94,6 +97,14 @@ public class ThriftServiceClientTest {
         } catch (TException e) {
             e.printStackTrace();
         }
+    }
+
+    private static DemoParam getDemoParam() {
+        DemoParam p = new DemoParam();
+        p.setDemoEnum(DemoEnum.B);
+        p.setId(1);
+        p.setName("abcd");
+        return p;
     }
 
     private static TProtocol getProtocol4Http(String url) throws TTransportException {
