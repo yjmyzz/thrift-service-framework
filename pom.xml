@@ -9,7 +9,7 @@
     <properties>
         <thrift.version>0.12.0</thrift.version>
         <java.version>1.8</java.version>
-        <jetty.version>9.4.17.v20190418</jetty.version>
+        <jetty.version>9.4.35.v20201120</jetty.version>
         <jetty.jsp.version>9.2.9.v20150224</jetty.jsp.version>
         <spring.version>4.3.18.RELEASE</spring.version>
         <log4j.version>2.4.1</log4j.version>
